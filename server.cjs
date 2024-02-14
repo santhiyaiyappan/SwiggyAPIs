@@ -63,46 +63,26 @@ app.get('/get-restaurant-details',async function(request,response){
 
     }
 })
-app.post('/create-new-user', async function(request, response) {
+app.delete('/delete-restaurant-detail/:id', async function(request, response) {
     try {
-         await Users.create({
-            "contact":request.body.contact,
-             "userName" : request.body.username,
-             "email" : request.body.email,
-             "password" : request.body.password
-         })
-         response.status(201).json({
-         "status" : "success",
-         "message": "user created"
-         })
-    } catch(error) {
-         response.status(500).json({
-             "status": "failure",
-             "message":"internal server error"
-
-
-         })
-    }
- })
- 
- app.post('/validate-user', async function(request, response) {
-    try {
-        const user = await Users.findOne({
-            "email" : request.body.email,
-            "password" : request.body.password 
-        })
-        if(user) {
+        const restaurant = await Restaurant.findById(request.params.id)
+        if(restaurant) {
+            await Restaurant.findByIdAndDelete(request.params.id)
             response.status(200).json({
-                "message" : "valid user"
+                "status" : "success",
+                "message" : "deleted successfully"
             })
-        } else {
-            response.status(401).json({
-                "message" : "invalid user"
+        } else { //restaurant : null
+            response.status(404).json({
+                "status" : "failure",
+                "message" : "entry not found"
             })
         }
     } catch(error) {
         response.status(500).json({
-            "message" : "internal server error"
+            "status" : "failure",
+            "message" : "could not delete",
+            "error" : error
         })
     }
-})                                    
+}) 
